@@ -1,0 +1,18 @@
+{
+  "skip_files": [
+    "lib/city_care/application.ex",
+    "lib/city_care/release.ex",
+    "lib/city_care/telemetry.ex",
+    "lib/city_care_web.ex",
+    "lib/city_care_web/telemetry.ex",
+    "lib/city_care_web/channels/user_socket.ex",
+    "lib/city_care/views/error_helpers.ex",
+    "test/support/channel_case.ex",
+    "test/support/data_case.ex"
+  ],
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "output_dir": "cover/",
+    "minimum_coverage": 75
+  }
+}
