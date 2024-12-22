@@ -1,0 +1,36 @@
+services:
+  citycare:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    container_name: city_care
+    command: mix phx.server
+    depends_on:
+      - city_care_db
+    ports:
+      - 4000:4000
+    volumes:
+      - .:/app
+    networks:
+      - city_care_net
+
+  city_care_db:
+    image: "postgres:13"
+    container_name: city_care_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - "city_care_db:/var/lib/postgresql/data"
+    networks:
+      - city_care_net
+
+volumes:
+  city_care_db:
+
+networks:
+  city_care_net:
+    name: city_care_net
