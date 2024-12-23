@@ -4,7 +4,7 @@ import Config
 config :city_care, CityCare.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: "city_care_db",
   database: "city_care_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
