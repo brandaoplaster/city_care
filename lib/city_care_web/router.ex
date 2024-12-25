@@ -17,8 +17,8 @@ defmodule CityCareWeb.Router do
   scope "/", CityCareWeb do
     pipe_through :browser
 
-    live "/incedents", IncidentLive.Index
-    live "/incedents/:id", IncidentLive.Show
+    live "/incidents", IncidentLive.Index
+    live "/incidents/:id", IncidentLive.Show
   end
 
   # Other scopes may use custom stacks.
