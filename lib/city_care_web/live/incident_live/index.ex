@@ -3,13 +3,19 @@ defmodule CityCareWeb.IncidentLive.Index do
 
   import CityCareWeb.CustomComponent
 
-  def mount(_params, _session, socket) do
-    socket =
-      assign(socket,
-        page_title: "Incidents"
-      )
+  alias CityCare.Incidents
 
+  def mount(_params, _session, socket) do
     {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> assign(:page_title, "Incidents")
+      |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
+
+    {:noreply, socket}
   end
 
   def render(assigns) do
@@ -22,17 +28,22 @@ defmodule CityCareWeb.IncidentLive.Index do
           </:tagline>
         </.headline>
         <div class="incidents">
-          <.incident_card :for={incident <- @incidents} incident={incident} />
+          <.incident_card
+            :for={{dom_id, incident} <- @streams.incidents}
+            incident={incident}
+            id={dom_id}
+          />
         </div>
       </div>
     """
   end
 
-  attr :incident, CityCare.Incidents.Incident, required: true
+  attr :incident, Incidents.Incident, required: true
+  attr :id, :string, required: true
 
   def incident_card(assigns) do
     ~H"""
-      <.link navigate={~p"/incidents/#{@incident}"}>
+      <.link navigate={~p"/incidents/#{@incident}"} id={@id}>
         <div class="card">
           <img src={@incident.image_path} />
           <h2>
