@@ -13,9 +13,48 @@ defmodule CityCareWeb.IncidentLive.Index do
     socket =
       socket
       |> assign(:page_title, "Incidents")
+      |> assign(:form, to_form(params))
       |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
 
     {:noreply, socket}
+  end
+
+  def handle_event("filter", params, socket) do
+    params =
+      params
+      |> Map.take(~w(q status sort_by))
+      |> Map.reject(fn {_, v} -> v == "" end)
+
+    socket = push_patch(socket, to: ~p"/incidents?#{params}")
+
+    {:noreply, socket}
+  end
+
+  def filter_form(assigns) do
+    ~H"""
+      <.form for={@form} id="filter-form" phx-change="filter" phx-submit="filter">
+        <.input field={@form[:q]} placeholder="Search..." autocomplete="off" phx-debounce="500" />
+        <.input
+          type="select"
+          field={@form[:status]}
+          prompt="Status"
+          options={[:pending, :resolved, :canceled]}
+        />
+        <.input
+          type="select"
+          field={@form[:sort_by]}
+          prompt="Sort By"
+          options={[
+            Name: "name",
+            "Priority: High to Low": "priority_asc",
+            "Priority: Low to High": "priority_desc"
+          ]}
+        />
+        <.link patch={~p"/incidents"}>
+          Reset
+        </.link>
+      </.form>
+    """
   end
 
   def render(assigns) do
@@ -27,7 +66,13 @@ defmodule CityCareWeb.IncidentLive.Index do
             Thanks for pitching in. <%= vibe %>
           </:tagline>
         </.headline>
-        <div class="incidents">
+
+        <.filter_form form={@form} />
+
+        <div class="incidents" id="incidents" phx-update="stream">
+          <div id="empty" class="no-results only:block hidden">
+            😢 No incidents found. Try changing your filters.
+          </div>
           <.incident_card
             :for={{dom_id, incident} <- @streams.incidents}
             incident={incident}
