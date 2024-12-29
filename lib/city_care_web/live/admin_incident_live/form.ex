@@ -1,4 +1,6 @@
 defmodule CityCareWeb.AdminIncidentLive.Form do
+alias CityCare.Incidents
+alias CityCare.Incidents.Incident
   use CityCareWeb, :live_view
 
   def mount(_params, _session, socket) do
@@ -15,7 +17,7 @@ defmodule CityCareWeb.AdminIncidentLive.Form do
       <.header>
         <%= @page_title %>
       </.header>
-      <.simple_form for={@form} id="incident-form">
+      <.simple_form for={@form} id="incident-form" phx-submit="save">
         <.input field={@form[:name]} label="Name" />
 
         <.input field={@form[:description]} type="textarea" label="Description" />
@@ -33,11 +35,18 @@ defmodule CityCareWeb.AdminIncidentLive.Form do
         <.input field={@form[:image_path]} label="Image Path" />
 
         <:actions>
-          <.button>Save Incident</.button>
+          <.button phx-disable-with="Saving...">Save Incident</.button>
         </:actions>
       </.simple_form>
 
       <.back navigate={~p"/admin/incidents"}>Back</.back>
     """
+  end
+
+  def handle_event("save", %{"incident" => incident_params}, socket) do
+    Incidents.create_incident(incident_params)
+    socket = push_navigate(socket, to: ~p"/admin/incidents")
+
+    {:noreply, socket}
   end
 end
