@@ -29,6 +29,10 @@ defmodule CityCare.Incidents do
     |> Repo.insert()
   end
 
+  def change_incident(%Incident{} = incident, attrs \\ %{}) do
+    Incident.changeset(incident, attrs)
+  end
+
   defp with_status(query, status) when status in ~w(pending resolved canceled) do
     where(query, status: ^status)
   end

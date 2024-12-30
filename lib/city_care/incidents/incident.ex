@@ -5,11 +5,11 @@ defmodule CityCare.Incidents.Incident do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "incidents" do
-    field :description, :string
-    field :image_path, :string
     field :name, :string
     field :priority, :integer, default: 1
     field :status, Ecto.Enum, values: [:pending, :resolved, :canceled], default: :pending
+    field :description, :string
+    field :image_path, :string, default: "/images/placeholder.jpg"
 
     timestamps(type: :utc_datetime)
   end
@@ -19,5 +19,7 @@ defmodule CityCare.Incidents.Incident do
     incident
     |> cast(attrs, [:name, :description, :priority, :status, :image_path])
     |> validate_required([:name, :description, :priority, :status, :image_path])
+    |> validate_length(:description, min: 10)
+    |> validate_inclusion(:priority, 1..3)
   end
 end
