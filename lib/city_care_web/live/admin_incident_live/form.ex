@@ -1,7 +1,7 @@
 defmodule CityCareWeb.AdminIncidentLive.Form do
-alias CityCare.Incidents
-alias CityCare.Incidents.Incident
   use CityCareWeb, :live_view
+
+  alias CityCare.Incidents
 
   def mount(_params, _session, socket) do
     socket =
