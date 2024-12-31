@@ -9,10 +9,10 @@ defmodule CityCareWeb.AdminIncidentLive.Form do
 
     socket =
       socket
-      |> assign(:title_page, "New Incident")
+      |> assign(:page_title, "New Incident")
       |> assign(:form, to_form(changeset))
 
-      {:ok, socket}
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -23,7 +23,7 @@ defmodule CityCareWeb.AdminIncidentLive.Form do
       <.simple_form for={@form} id="incident-form" phx-submit="save" phx-change="validate">
         <.input field={@form[:name]} label="Name" />
 
-        <.input field={@form[:description]} type="textarea" label="Description" />
+        <.input field={@form[:description]} type="textarea" label="Description" phx-debounce="blur" />
 
         <.input field={@form[:priority]} type="number" label="Priority" />
 
@@ -47,17 +47,25 @@ defmodule CityCareWeb.AdminIncidentLive.Form do
   end
 
   def handle_event("save", %{"incident" => incident_params}, socket) do
-    Incidents.create_incident(incident_params)
-    socket = push_navigate(socket, to: ~p"/admin/incidents")
+    case Incidents.create_incident(incident_params) do
+      {:ok, _incident} ->
+        socket =
+          socket
+          |> put_flash(:info, "Incident created successfully!")
+          |> push_navigate(to: ~p"/admin/incidents")
 
-    {:noreply, socket}
+        {:noreply, socket}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        socket = assign(socket, :form, to_form(changeset))
+        {:noreply, socket}
+    end
   end
 
-  def handle_event("validate", %{"incident" => params}, socket) do
-    changeset = Incidents.change_incident(%Incident{}, params)
-    socket =
-      socket
-      |> assign(:form, to_form(changeset, action: :validate))
+  def handle_event("validate", %{"incident" => incident_params}, socket) do
+    changeset = Incidents.change_incident(%Incident{}, incident_params)
+
+    socket = assign(socket, :form, to_form(changeset, action: :validate))
 
     {:noreply, socket}
   end
